@@ -1,6 +1,6 @@
 ---
 name: memory-dual-save-rule
-description: 「保存して」などの指示時は Claude memory と Obsidian/GitHub の両方に必ず保存する最優先ルール
+description: 保存指示時は Claude memory + GitHub push（john-brain）の両方を必ず実行する最優先ルール
 metadata:
   type: feedback
 ---
@@ -11,10 +11,10 @@ metadata:
 
 **Step B**: `C:\Users\s2525\OneDrive\john_brain\Claude-Memory\` に同名 `.md` を作成・更新し、git add → commit → push で GitHub へ反映
 
-**Why:** ユーザーが Obsidian（john_brain）と Claude memory を一元管理したいため。どちらか一方だけでは不完全。
+**Why:** GitHub が唯一の正本。Obsidian は各PCで GitHub から pull して同期する。OneDrive 同期には頼らない（PCごとに vault の状態が異なる可能性があるため）。push が完了して初めて「保存完了」。
 
-**How to apply:** 保存系アクション全般に適用。省略は絶対禁止。
+**How to apply:** 保存系アクション全般に適用。GitHub push の省略は絶対禁止。
 
 GitHub: https://github.com/s2525keita3/john-brain
-Obsidian vault: C:\Users\s2525\OneDrive\john_brain\
+Obsidian vault (このPC): C:\Users\s2525\OneDrive\john_brain\
 Claude memory: C:\Users\s2525\.claude\projects\...\memory\
