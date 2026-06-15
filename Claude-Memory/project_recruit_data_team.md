@@ -21,7 +21,8 @@ metadata:
    - 6役：①データ収集官 ②計測点検官 ③ファネル分析官 ④媒体分析官 ⑤異常検知官 ⑥参謀(統合)
    - 指標体系：第0層 計測健全性／第1層 配信・流入／第2層 サイト行動／第3層 LINE／第4層 採用成果
    - 警報ルール：SNS投稿14日ゼロ🚨／LINE純増マイナス🚨／cta_click=0🚨／エントリー率前月比-50%⚠️／媒体応募ありで入職0継続⚠️／前年同期比70%減🚨
-2. `recruit-advisor/ga4_to_sheet.gs`＋`SETUP_GA4_自動転記.md`：GA4→シート自動転記（GA4日次/ページ別/イベント の3タブ、毎朝6時自動）
+2. `recruit-advisor/ga4_to_sheet.gs`＋`SETUP_GA4_自動転記.md`：GA4+Search Console→シート自動転記（毎朝6時自動）。タブ：GA4日次/GA4ページ別(全ページ・直帰率)/GA4イベント/GA4流入元/GA4ランディング/GA4デバイス/GA4地域/SC検索ワード/SCページ別。Apps Scriptで「Google Analytics Data API」+「Search Console API」の2サービス追加が必要。SC_SITE_URL初期値=sc-domain:pure-john.com。
+3. 初回点検で判明🚨：GA4ページ別のhostnameは全て pure-john.com で **recruit.pure-john.com が出ない**（採用LP本体は別プロパティ G-MZNNZC5SD2 で計測の疑い）。cta_clickイベントもこの箱には無い。本体サイトは /contact/37→form_start28→contact25 と問い合わせ動線は機能。SNS投稿は3/25で停止＝82日ゼロ🚨。
 
 ## GA4計測の確定事実（誤解禁止・検証済み）
 - recruit.pure-john.com は pure-john.com の**サブドメイン**。両方とも**単一プロパティ G-PLYYTYJCR3（ストリームID 14972356304）にまとめて記録**。recruit用の別ストリームは作らない（二重計測になる）。
