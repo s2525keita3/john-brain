@@ -21,8 +21,15 @@ metadata:
    - 6役：①データ収集官 ②計測点検官 ③ファネル分析官 ④媒体分析官 ⑤異常検知官 ⑥参謀(統合)
    - 指標体系：第0層 計測健全性／第1層 配信・流入／第2層 サイト行動／第3層 LINE／第4層 採用成果
    - 警報ルール：SNS投稿14日ゼロ🚨／LINE純増マイナス🚨／cta_click=0🚨／エントリー率前月比-50%⚠️／媒体応募ありで入職0継続⚠️／前年同期比70%減🚨
-2. `recruit-advisor/ga4_to_sheet.gs`＋`SETUP_GA4_自動転記.md`：GA4+Search Console→シート自動転記（毎朝6時自動）。タブ：GA4日次/GA4ページ別(全ページ・直帰率)/GA4イベント/GA4流入元/GA4ランディング/GA4デバイス/GA4地域/SC検索ワード/SCページ別。Apps Scriptで「Google Analytics Data API」+「Search Console API」の2サービス追加が必要。SC_SITE_URL初期値=sc-domain:pure-john.com。
-3. 初回点検で判明🚨：GA4ページ別のhostnameは全て pure-john.com で **recruit.pure-john.com が出ない**（採用LP本体は別プロパティ G-MZNNZC5SD2 で計測の疑い）。cta_clickイベントもこの箱には無い。本体サイトは /contact/37→form_start28→contact25 と問い合わせ動線は機能。
+2. `recruit-advisor/ga4_to_sheet.gs`＋`SETUP_GA4_自動転記.md`：GA4+Search Console→シート自動転記（毎朝6時自動）。タブ：GA4日次/GA4ページ別(全ページ・直帰率)/GA4イベント/GA4流入元/GA4ランディング/GA4デバイス/GA4地域/SC検索ワード/SCページ別。
+
+## ✅ 実装完成（2026-06-16・完全自動運転）
+- **9タブ全部稼働中・毎朝6時自動更新トリガー設置済み**。
+- GA4は Apps Script の Advanced Service「Google Analytics Data API」で取得。
+- **Search Console は Advanced Serviceに無い** → `UrlFetchApp`+`ScriptApp.getOAuthToken()` でREST直叩き（sites.listで対象サイト自動判定、SC_SITE_URL=''）。
+- そのため Apps Script の隠しデフォルトGCPプロジェクトでは権限不足になる →**渋谷専用GCPプロジェクト`pure-john-analytics`（番号 578440970804）を作成しApps Scriptに紐付け**。Search Console API + Analytics Data API有効化、OAuth同意画面=外部/本番、テストユーザー追加済み。
+- マニフェスト(appsscript.json)に webmasters.readonly 等のoauthScopes宣言が必要（SETUP参照）。
+3. GA4の話：GA4ページ別のhostnameは全て pure-john.com で **recruit.pure-john.com が出ない**（GA4 G-PLYYTYJCR3には採用LPのページ別が乗らない）。が **Search Consoleでは recruit.pure-john.com が見える**（下の発見参照）。cta_clickイベントもこの箱には無い。本体サイトは /contact→form_start→contact と問い合わせ動線は機能。
 
 ## 点検方法の確定（重要・誤検知の再発防止）
 - `read_file_content` は**大きいシートを途中で切る**（SNS投稿ログが3/25で切れて「投稿停止」と誤検知した）。
@@ -43,9 +50,17 @@ metadata:
 - ファネル：応募19→面接設定14→内定4→入職2。漏れは**面接後**（面接後不採用6・年齢NG40代/コミュ困難）。
 - **店舗偏在**：入職はさいわい1名のみ。桜木町は興味No.1(162件)なのに入職0（クロージング課題の疑い）。さいわいは唯一スカウトを打っていた店舗。
 
-## 次アクション候補
-- GAS設置後「GA4自動転記つけた」と言われたら起動時に3タブを読む
-- P1 SNS投稿再開（/sns）、P2 インスタ入職0問題の媒体ターゲット見直し
-- cta_click率（/recruit/到達→ボタン押下）を次に点検
+## 🆕 Search Console/流入/地域/デバイス 発見（2026-06-16 9タブ初回・直近28日）
+- **SCで採用LPが生きていた**：`recruit.pure-john.com/` クリック37・表示1,718・平均4.6位（GA4では見えなかった動線）。クリックの主因は**指名検索**（「ぴゅあ訪問看護リハビリステーション」7クリック/CTR8.75%/2.6位 等）。
+- **求人キーワードがゼロ**：表示が多いのは「神奈川県 訪問看護」56表示1位・「横浜市 訪問看護事業所」27表示1位等の**サービス意図**ばかり。「訪問看護 求人/転職/採用」系は1件も無い→**採用SEOは完全未開拓＝最大の伸びしろ**。サイトはサービス系で1位を取れるドメイン力あり。
+- **SNS→サイト流入=0**：GA4流入元は Organic(google103/bing18/yahoo11)＋Direct83＋Referral(営業LP4・厚労省3)。Social=0。**採用SNSはSNS→LINE直行でサイトを通らない**＝サイト解析と採用SNSは別世界。採用本体はLステップ＋応募者シートで測るのが正。
+- **訪問者は求職者でない傍証**：デバイス desktop158>mobile73(PC2:1)、地域 Tokyo103>Kanagawa56。求職者ならスマホ・神奈川優勢のはずで、サイト主客は業務/ケアマネ/取引先層。
+- recruitページの直帰率は0.167と低い（到達者は engaged）。/contact直帰0.318で問い合わせ動線は機能。
+
+## 次アクション候補（更新）
+- **P1：TikTok中心にSNS再開**（生存媒体。/snsで量産）。インスタはリーチ死。
+- **P2：採用SEOコンテンツ新設**（今回の最大示唆）。「訪問看護 求人 横浜/桜木町/幸区」「病棟→訪問看護 転職」コラム。受け皿の recruit LP は指名検索で既に機能。
+- **P3：桜木町のクロージング改善**（興味1位なのに入職0／面接後歩留まり）。
+- 起動の度に9タブで自動点検（A-3プロトコル）が回る。
 
 関連：[[session-20260607]]
