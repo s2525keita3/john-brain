@@ -66,16 +66,42 @@
     <!-- 入力 -->
     <div class="panel form-side">
       <h2>① 自社情報を入力</h2>
+      <p class="hint" style="margin:0 0 10px;">各項目は <b>▼から候補を選ぶ</b> ことも、<b>自由に入力</b> することもできます。</p>
       <label>事業所名</label><input id="site" placeholder="例：ぴゅあ訪問看護">
-      <label>所在地（区・町）</label><input id="loc" placeholder="例：横浜市（桜木町）">
+      <label>所在地（区・町）</label><input id="loc" list="dlLoc" placeholder="例：横浜市（桜木町）">
       <label>代表者名</label><input id="rep" placeholder="例：渋谷">
-      <label>対象エリア（JMの希望勤務地）</label><input id="area" placeholder="例：神奈川県（横浜・川崎ほか）">
-      <label>開設時期 / フェーズ</label><input id="phase" placeholder="例：神奈川6拠点で運営する安定フェーズ">
-      <label>最低経験</label><input id="minexp" placeholder="例：病棟1年">
-      <label>未経験フォロー方針</label><input id="follow" placeholder="例：先輩が同行して段階的に独り立ち">
-      <label>オンコール条件</label><input id="oncall" placeholder="例：相談しながら段階的に・先輩バックアップ付き">
-      <label>報酬の還元方針</label><textarea id="reward" placeholder="例：訪問件数・オンコール当番を手当で還元"></textarea>
-      <label>看護以外の業務</label><input id="other" placeholder="例：関係先へのご報告など">
+      <label>対象エリア（JMの希望勤務地）</label><input id="area" list="dlArea" placeholder="例：神奈川県（横浜・川崎ほか）">
+      <label>開設時期 / フェーズ ▼</label><input id="phase" list="dlPhase" placeholder="選ぶ or 入力">
+      <label>最低経験 ▼</label><input id="minexp" list="dlMinexp" placeholder="選ぶ or 入力">
+      <label>未経験フォロー方針 ▼</label><input id="follow" list="dlFollow" placeholder="選ぶ or 入力">
+      <label>オンコール条件 ▼</label><input id="oncall" list="dlOncall" placeholder="選ぶ or 入力">
+      <label>報酬の還元方針 ▼</label><input id="reward" list="dlReward" placeholder="選ぶ or 入力">
+      <label>看護以外の業務 ▼</label><input id="other" list="dlOther" placeholder="選ぶ or 入力">
+
+      <datalist id="dlLoc">
+        <option value="横浜市（桜木町）"><option value="文京区向丘"><option value="（市区町村名を入力）">
+      </datalist>
+      <datalist id="dlArea">
+        <option value="神奈川県（横浜・川崎ほか）"><option value="東京23区内"><option value="事業所から車で30分圏内"><option value="（希望勤務地に合わせて入力）">
+      </datalist>
+      <datalist id="dlPhase">
+        <option value="開設準備中（オープン前）"><option value="開設したばかりの立ち上げ期"><option value="開設1年目"><option value="複数拠点を運営する安定フェーズ"><option value="神奈川6拠点で運営する安定フェーズ">
+      </datalist>
+      <datalist id="dlMinexp">
+        <option value="病棟1年"><option value="病棟2〜3年"><option value="臨床経験3年以上"><option value="経験不問（ブランクのある方も歓迎）"><option value="訪問看護の経験者を優遇">
+      </datalist>
+      <datalist id="dlFollow">
+        <option value="先輩が同行して段階的に独り立ち"><option value="同行訪問でしっかりフォロー"><option value="プリセプター制度でマンツーマン指導"><option value="教育チェックリストで段階的に習得">
+      </datalist>
+      <datalist id="dlOncall">
+        <option value="相談しながら段階的に・先輩バックアップ付き"><option value="月9回程度・チームで分担"><option value="できる範囲から・最初は先輩が同伴"><option value="オンコールあり（手当を別途支給）"><option value="オンコールなし（日中のみの対応）">
+      </datalist>
+      <datalist id="dlReward">
+        <option value="訪問件数・オンコール当番を手当で還元"><option value="土日出勤・訪問件数を手当で還元"><option value="基本給＋各種手当（オンコール・土日・件数）"><option value="インセンティブ制度あり（成果を給与に反映）">
+      </datalist>
+      <datalist id="dlOther">
+        <option value="関係先へのご報告など"><option value="営業・外部報告"><option value="営業・地域連携・記録"><option value="記録・書類業務が中心（営業はなし）">
+      </datalist>
 
       <div class="btn-row">
         <button class="btn" onclick="gen()">文面を生成</button>
