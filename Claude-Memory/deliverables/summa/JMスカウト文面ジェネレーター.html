@@ -104,6 +104,33 @@
           <tr><td>T4</td><td>パート・柔軟</td><td>パート・バイト希望・ブランク/子育て・土日入れる</td></tr>
         </table>
       </div>
+
+      <div class="panel" id="tracker">
+        <h2>📊 送信→返信→面談 トラッキング（文面別CV率）</h2>
+        <style>
+          #tracker .summary th, #tracker .summary td{text-align:center; font-variant-numeric:tabular-nums;}
+          #tracker .summary td.p{text-align:left; font-weight:600;}
+          #tracker .summary tr.total td{background:var(--accent-soft); font-weight:700;}
+          #tracker .log input[type=text]{padding:5px 7px; font-size:12.5px;}
+          #tracker .log input[type=date]{padding:4px 6px; font-size:12px;}
+          #tracker .log select{padding:5px 6px; font-size:12.5px; border:1px solid var(--line); border-radius:6px;}
+          #tracker .log td{text-align:center; vertical-align:middle;}
+          #tracker .rate{font-size:11px; color:var(--sub); display:block;}
+          #tracker .hl{font-size:15px; font-weight:700;}
+        </style>
+
+        <div class="lbl" style="margin-bottom:6px;">CV率サマリー（自動計算）</div>
+        <table class="summary" id="cvSummary"></table>
+
+        <div class="lbl" style="margin:16px 0 6px;">送信ログ（1件＝1スカウト）</div>
+        <div class="btn-row" style="margin:0 0 10px;">
+          <button class="btn sm" onclick="addLog()">＋ 送信を1件記録</button>
+          <button class="btn ghost sm" onclick="exportLogCSV()">CSVで書き出し</button>
+          <button class="btn ghost sm" onclick="clearLog()">ログを全消去</button>
+        </div>
+        <table class="log" id="logTable"></table>
+        <p class="hint">記録はこの端末のブラウザに自動保存されます。返信が来たら「返信」、面談が決まったら「面談」にチェック。月次でCSVを書き出して採用管理表に貼れます。</p>
+      </div>
     </div>
   </div>
 </div>
@@ -225,6 +252,94 @@ function clearAll(){ FIELDS.forEach(f=>document.getElementById(f).value=""); loc
 FIELDS.forEach(f=>document.getElementById(f).addEventListener("input",()=>{ gen(); }));
 load();
 gen();
+
+/* ===== 送信→返信→面談 トラッキング ===== */
+const PERSONAS = [
+  {k:"T1", label:"T1 キャリアチェンジ"},
+  {k:"T2", label:"T2 即戦力"},
+  {k:"T3", label:"T3 収入重視"},
+  {k:"T4", label:"T4 パート柔軟"},
+];
+function today(){ return new Date().toISOString().slice(0,10); }
+function logData(){ try{ return JSON.parse(localStorage.getItem("jm_scout_log")||"[]"); }catch(e){ return []; } }
+function saveLogData(a){ localStorage.setItem("jm_scout_log", JSON.stringify(a)); }
+function escAttr(s){ return String(s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
+function rate(n,d){ return d>0 ? Math.round(100*n/d)+"%" : "–"; }
+
+function addLog(){
+  var a=logData();
+  a.unshift({id:Date.now(), date:today(), persona:"T1", memo:"", replied:false, interview:false});
+  saveLogData(a); renderLog(); renderSummary();
+}
+function updLog(id, field, val){
+  var a=logData(); var e=a.find(x=>x.id===id); if(!e) return;
+  e[field]=val;
+  if(field==="interview" && val===true) e.replied=true; // 面談=返信ありが前提
+  saveLogData(a); renderLog(); renderSummary();
+}
+function delLog(id){ saveLogData(logData().filter(x=>x.id!==id)); renderLog(); renderSummary(); }
+function clearLog(){ if(confirm("送信ログを全消去します。よろしいですか？")){ localStorage.removeItem("jm_scout_log"); renderLog(); renderSummary(); } }
+
+function personaOptions(sel){ return PERSONAS.map(p=>`<option value="${p.k}" ${p.k===sel?"selected":""}>${p.label}</option>`).join(""); }
+
+function renderLog(){
+  var a=logData(); var t=document.getElementById("logTable");
+  var head=`<tr><th>日付</th><th>文面</th><th>宛名・メモ</th><th>返信</th><th>面談</th><th></th></tr>`;
+  if(!a.length){ t.innerHTML=head+`<tr><td colspan="6" style="color:var(--sub); padding:14px;">まだ記録がありません。「＋ 送信を1件記録」から追加してください。</td></tr>`; return; }
+  t.innerHTML=head+a.map(e=>`<tr>
+    <td><input type="date" value="${e.date}" onchange="updLog(${e.id},'date',this.value)"></td>
+    <td><select onchange="updLog(${e.id},'persona',this.value)">${personaOptions(e.persona)}</select></td>
+    <td><input type="text" value="${escAttr(e.memo)}" placeholder="宛名・メモ" onchange="updLog(${e.id},'memo',this.value)" style="width:100%"></td>
+    <td><input type="checkbox" ${e.replied?"checked":""} onchange="updLog(${e.id},'replied',this.checked)"></td>
+    <td><input type="checkbox" ${e.interview?"checked":""} onchange="updLog(${e.id},'interview',this.checked)"></td>
+    <td><button class="btn ghost sm" onclick="delLog(${e.id})" title="削除">×</button></td>
+  </tr>`).join("");
+}
+
+function renderSummary(){
+  var a=logData();
+  var head=`<tr><th>文面</th><th>送信</th><th>返信</th><th>返信率</th><th>面談</th><th>面談率<span class="rate">対送信</span></th><th>面談化<span class="rate">対返信</span></th></tr>`;
+  function row(label, items, isTotal){
+    var sent=items.length;
+    var rep=items.filter(x=>x.replied).length;
+    var intv=items.filter(x=>x.interview).length;
+    return `<tr class="${isTotal?'total':''}">
+      <td class="p">${label}</td>
+      <td>${sent}</td>
+      <td>${rep}</td>
+      <td>${rate(rep,sent)}</td>
+      <td>${intv}</td>
+      <td class="hl">${rate(intv,sent)}</td>
+      <td>${rate(intv,rep)}</td>
+    </tr>`;
+  }
+  var rows = PERSONAS.map(p=>row(p.label, a.filter(x=>x.persona===p.k), false)).join("");
+  rows += row("合計", a, true);
+  document.getElementById("cvSummary").innerHTML = head + rows;
+}
+
+function exportLogCSV(){
+  var a=logData();
+  var header=["日付","文面","宛名・メモ","返信","面談"];
+  var lines=[header.join(",")];
+  a.slice().reverse().forEach(e=>{
+    var row=[e.date, e.persona, '"'+String(e.memo||"").replace(/"/g,'""')+'"', e.replied?"○":"", e.interview?"○":""];
+    lines.push(row.join(","));
+  });
+  // サマリー行も付与
+  lines.push("");
+  lines.push("【CV率サマリー】,送信,返信,返信率,面談,面談率(対送信),面談化(対返信)");
+  function summ(label,items){ var s=items.length,r=items.filter(x=>x.replied).length,i=items.filter(x=>x.interview).length;
+    return [label,s,r,rate(r,s),i,rate(i,s),rate(i,r)].join(","); }
+  PERSONAS.forEach(p=>lines.push(summ(p.label, a.filter(x=>x.persona===p.k))));
+  lines.push(summ("合計", a));
+  var blob=new Blob(["﻿"+lines.join("\r\n")], {type:"text/csv;charset=utf-8;"});
+  var url=URL.createObjectURL(blob); var link=document.createElement("a");
+  link.href=url; link.download="JMスカウト送信ログ.csv"; link.click(); URL.revokeObjectURL(url);
+}
+
+renderLog();
+renderSummary();
 </script>
 </body>
 </html>
