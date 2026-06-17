@@ -66,20 +66,20 @@
     <!-- 入力 -->
     <div class="panel form-side">
       <h2>① 自社情報を入力</h2>
-      <label>事業所名</label><input id="site" placeholder="例：つねいろ">
-      <label>所在地（区・町）</label><input id="loc" placeholder="例：文京区向丘">
-      <label>代表者名</label><input id="rep" placeholder="例：常吉">
-      <label>対象エリア（JMの希望勤務地）</label><input id="area" placeholder="例：文京区周辺">
-      <label>開設時期 / フェーズ</label><input id="phase" placeholder="例：2025年11月開設の立ち上げ期">
+      <label>事業所名</label><input id="site" placeholder="例：ぴゅあ訪問看護">
+      <label>所在地（区・町）</label><input id="loc" placeholder="例：横浜市（桜木町）">
+      <label>代表者名</label><input id="rep" placeholder="例：渋谷">
+      <label>対象エリア（JMの希望勤務地）</label><input id="area" placeholder="例：神奈川県（横浜・川崎ほか）">
+      <label>開設時期 / フェーズ</label><input id="phase" placeholder="例：神奈川6拠点で運営する安定フェーズ">
       <label>最低経験</label><input id="minexp" placeholder="例：病棟1年">
-      <label>未経験フォロー方針</label><input id="follow" placeholder="例：先輩が同行">
-      <label>オンコール条件</label><input id="oncall" placeholder="例：月9回程度／事情で調整可">
-      <label>報酬の還元方針</label><textarea id="reward" placeholder="例：土日出勤・訪問件数を金銭で還元"></textarea>
-      <label>看護以外の業務</label><input id="other" placeholder="例：営業・外部報告">
+      <label>未経験フォロー方針</label><input id="follow" placeholder="例：先輩が同行して段階的に独り立ち">
+      <label>オンコール条件</label><input id="oncall" placeholder="例：相談しながら段階的に・先輩バックアップ付き">
+      <label>報酬の還元方針</label><textarea id="reward" placeholder="例：訪問件数・オンコール当番を手当で還元"></textarea>
+      <label>看護以外の業務</label><input id="other" placeholder="例：関係先へのご報告など">
 
       <div class="btn-row">
         <button class="btn" onclick="gen()">文面を生成</button>
-        <button class="btn ghost sm" onclick="loadSample()">つねいろの例を入れる</button>
+        <button class="btn ghost sm" onclick="loadSample()">協会の標準例を入れる（ぴゅあ）</button>
         <button class="btn ghost sm" onclick="clearAll()">クリア</button>
       </div>
       <p class="hint">入力は自動保存されます（この端末のブラウザ内）。</p>
@@ -110,10 +110,11 @@
 
 <script>
 const FIELDS = ["site","loc","rep","area","phase","minexp","follow","oncall","reward","other"];
+// 協会の標準例（ぴゅあ訪問看護グループ／神奈川6拠点）。オンコールは「相談しながら段階的に」＝免除を約束する表現は使わない。
 const SAMPLE = {
-  site:"つねいろ", loc:"文京区向丘", rep:"常吉", area:"文京区周辺",
-  phase:"2025年11月開設の立ち上げ期", minexp:"病棟1年", follow:"先輩が同行",
-  oncall:"月9回程度／ご事情があれば調整可", reward:"土日出勤・訪問件数を金銭で還元", other:"営業・外部報告"
+  site:"ぴゅあ訪問看護", loc:"横浜市（桜木町）", rep:"渋谷", area:"神奈川県（横浜・川崎ほか6拠点）",
+  phase:"神奈川6拠点で運営する安定フェーズ", minexp:"病棟1年", follow:"先輩が同行して段階的に独り立ち",
+  oncall:"相談しながら段階的に・先輩バックアップ付き", reward:"訪問件数・オンコール当番を手当で還元", other:"関係先へのご報告など"
 };
 
 const TEMPLATES = [
@@ -173,7 +174,7 @@ const TEMPLATES = [
 `〔お名前〕様
 
 はじめまして。{loc}の訪問看護ステーション「{site}」の{rep}です。
-〔パート希望・エリア〕を拝見し、つねいろの働き方と合いそうだと思いご連絡しました。
+〔パート希望・エリア〕を拝見し、{site}の働き方と合いそうだと思いご連絡しました。
 
 パート・アルバイトの方も歓迎です。ブランクのある方も最初は{follow}するのでご安心ください。{minexp}程度のご経験があれば十分です。
 
