@@ -109,6 +109,35 @@
         <button class="btn ghost sm" onclick="clearAll()">クリア</button>
       </div>
       <p class="hint">入力は自動保存されます（この端末のブラウザ内）。</p>
+
+      <div id="feedback" style="margin-top:18px; padding-top:16px; border-top:2px solid var(--line);">
+        <div class="lbl" style="font-size:14px; margin-bottom:8px;">📣 管理者へ報告・要望</div>
+        <p class="hint" style="margin-top:0;">使いづらい点・要望・項目のエラーなどを<b>選択式</b>で送れます。</p>
+        <label>種別</label>
+        <select id="fbType" style="width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:8px; font-size:13.5px;">
+          <option>使いづらい・分かりにくい</option>
+          <option>要望（こうしてほしい）</option>
+          <option>項目・表示のエラー（おかしい）</option>
+          <option>文面の内容について</option>
+          <option>候補（選択肢）を追加してほしい</option>
+          <option>その他</option>
+        </select>
+        <label>該当箇所</label>
+        <select id="fbPlace" style="width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:8px; font-size:13.5px;">
+          <option>自社情報の入力欄</option>
+          <option>生成された文面（T1〜T4）</option>
+          <option>ペルソナ振り分け表</option>
+          <option>トラッキング表（CV率）</option>
+          <option>CSV書き出し</option>
+          <option>全体・その他</option>
+        </select>
+        <label>詳細（どんな状況で・どうなってほしいか）</label>
+        <textarea id="fbDetail" placeholder="例：オンコール条件の候補に『週1回のみ』を追加してほしい"></textarea>
+        <label>お名前・事業所（任意・返信が必要な場合）</label>
+        <input id="fbName" placeholder="任意">
+        <div class="btn-row" style="margin-top:12px;"><button class="btn" onclick="submitFeedback()">送信する</button></div>
+        <p class="hint" id="fbMsg"></p>
+      </div>
     </div>
 
     <!-- 出力 -->
@@ -156,35 +185,6 @@
         </div>
         <table class="log" id="logTable"></table>
         <p class="hint">記録はこの端末のブラウザに自動保存されます。返信が来たら「返信」、面談が決まったら「面談」にチェック。月次でCSVを書き出して採用管理表に貼れます。</p>
-      </div>
-
-      <div class="panel" id="feedback">
-        <h2>📣 管理者へ報告・要望</h2>
-        <p class="hint" style="margin-top:0;">使いづらい点・要望・項目のエラーなどを<b>選択式</b>で送れます。改善に使わせていただきます。</p>
-        <label>種別</label>
-        <select id="fbType">
-          <option>使いづらい・分かりにくい</option>
-          <option>要望（こうしてほしい）</option>
-          <option>項目・表示のエラー（おかしい）</option>
-          <option>文面の内容について</option>
-          <option>候補（選択肢）を追加してほしい</option>
-          <option>その他</option>
-        </select>
-        <label>該当箇所</label>
-        <select id="fbPlace">
-          <option>自社情報の入力欄</option>
-          <option>生成された文面（T1〜T4）</option>
-          <option>ペルソナ振り分け表</option>
-          <option>トラッキング表（CV率）</option>
-          <option>CSV書き出し</option>
-          <option>全体・その他</option>
-        </select>
-        <label>詳細（どんな状況で・どうなってほしいか）</label>
-        <textarea id="fbDetail" placeholder="例：オンコール条件の候補に『週1回のみ』を追加してほしい"></textarea>
-        <label>お名前・事業所（任意・返信が必要な場合）</label>
-        <input id="fbName" placeholder="任意">
-        <div class="btn-row" style="margin-top:12px;"><button class="btn" onclick="submitFeedback()">送信する</button></div>
-        <p class="hint" id="fbMsg"></p>
       </div>
     </div>
   </div>
