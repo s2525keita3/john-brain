@@ -157,6 +157,35 @@
         <table class="log" id="logTable"></table>
         <p class="hint">記録はこの端末のブラウザに自動保存されます。返信が来たら「返信」、面談が決まったら「面談」にチェック。月次でCSVを書き出して採用管理表に貼れます。</p>
       </div>
+
+      <div class="panel" id="feedback">
+        <h2>📣 管理者へ報告・要望</h2>
+        <p class="hint" style="margin-top:0;">使いづらい点・要望・項目のエラーなどを<b>選択式</b>で送れます。改善に使わせていただきます。</p>
+        <label>種別</label>
+        <select id="fbType">
+          <option>使いづらい・分かりにくい</option>
+          <option>要望（こうしてほしい）</option>
+          <option>項目・表示のエラー（おかしい）</option>
+          <option>文面の内容について</option>
+          <option>候補（選択肢）を追加してほしい</option>
+          <option>その他</option>
+        </select>
+        <label>該当箇所</label>
+        <select id="fbPlace">
+          <option>自社情報の入力欄</option>
+          <option>生成された文面（T1〜T4）</option>
+          <option>ペルソナ振り分け表</option>
+          <option>トラッキング表（CV率）</option>
+          <option>CSV書き出し</option>
+          <option>全体・その他</option>
+        </select>
+        <label>詳細（どんな状況で・どうなってほしいか）</label>
+        <textarea id="fbDetail" placeholder="例：オンコール条件の候補に『週1回のみ』を追加してほしい"></textarea>
+        <label>お名前・事業所（任意・返信が必要な場合）</label>
+        <input id="fbName" placeholder="任意">
+        <div class="btn-row" style="margin-top:12px;"><button class="btn" onclick="submitFeedback()">送信する</button></div>
+        <p class="hint" id="fbMsg"></p>
+      </div>
     </div>
   </div>
 </div>
@@ -366,6 +395,43 @@ function exportLogCSV(){
 
 renderLog();
 renderSummary();
+
+/* ===== フィードバック送信（Googleフォーム連携） =====
+   ↓ フォーム作成後、ここだけ差し替えれば有効化されます（手順は別途案内）。
+   formActionUrl: Googleフォームの「.../formResponse」URL
+   entry: 各設問の entry.ID（プレフィルURLから取得）                                  */
+const FB_CONFIG = {
+  formActionUrl: "",                 // 例: https://docs.google.com/forms/d/e/XXXXXXXX/formResponse
+  entry: { type:"", place:"", detail:"", name:"" },
+  adminMail: ""                      // フォーム未設定時のフォールバック先メール（任意）
+};
+
+function submitFeedback(){
+  var detail=document.getElementById("fbDetail").value.trim();
+  var msg=document.getElementById("fbMsg");
+  if(!detail){ msg.style.color="#b45309"; msg.textContent="⚠ 詳細を入力してください。"; return; }
+  var type=document.getElementById("fbType").value;
+  var place=document.getElementById("fbPlace").value;
+  var name=document.getElementById("fbName").value.trim();
+
+  if(FB_CONFIG.formActionUrl && FB_CONFIG.entry.detail){
+    var fd=new FormData();
+    fd.append(FB_CONFIG.entry.type, type);
+    if(FB_CONFIG.entry.place) fd.append(FB_CONFIG.entry.place, place);
+    fd.append(FB_CONFIG.entry.detail, detail);
+    if(FB_CONFIG.entry.name && name) fd.append(FB_CONFIG.entry.name, name);
+    fetch(FB_CONFIG.formActionUrl, {method:"POST", mode:"no-cors", body:fd})
+      .then(()=>{ msg.style.color="var(--accent)"; msg.textContent="✓ 送信しました。ご協力ありがとうございます！";
+        document.getElementById("fbDetail").value=""; document.getElementById("fbName").value=""; })
+      .catch(()=>{ msg.style.color="#b45309"; msg.textContent="送信に失敗しました。時間をおいて再度お試しください。"; });
+  } else if(FB_CONFIG.adminMail){
+    var body=encodeURIComponent("【種別】"+type+"\n【該当箇所】"+place+"\n【詳細】"+detail+"\n【お名前・事業所】"+(name||"-"));
+    var subj=encodeURIComponent("[スカウトアプリ] "+type+"／"+place);
+    window.location.href="mailto:"+FB_CONFIG.adminMail+"?subject="+subj+"&body="+body;
+  } else {
+    msg.style.color="#b45309"; msg.textContent="現在、送信先を準備中です。お手数ですが管理者へ直接お知らせください。";
+  }
+}
 </script>
 </body>
 </html>
